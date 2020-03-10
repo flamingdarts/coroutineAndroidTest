@@ -3,6 +3,7 @@ package com.dnpi.coroutineDemo
 
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.Voice
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -10,8 +11,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_dancer.*
 import kotlinx.coroutines.*
-import org.w3c.dom.Text
 import java.util.*
+import kotlin.collections.HashSet
 import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
@@ -40,8 +41,7 @@ class DancerFragment : Fragment(), CoroutineScope {
         setupTTS()
         giveAnswer.isEnabled = false
         tellJoke.setOnClickListener {
-            answerIndex = Random.nextInt(0,2)
-            val joke = Jokes().getJoke(answerIndex)
+            val joke = getJokeBlocking()
             text_under_dancer.text = joke
             textToSpeech.speak(joke,TextToSpeech.QUEUE_FLUSH,null,"")
             tellJoke.isEnabled = false
@@ -49,26 +49,34 @@ class DancerFragment : Fragment(), CoroutineScope {
         }
         giveAnswer.setOnClickListener {
             if (answerIndex >= 0) {
-                val answer = Jokes().getAnswer(answerIndex)
+                val answer = getAnswerBlocking()
                 text_under_dancer.text = answer
+                textToSpeech.speak(answer,TextToSpeech.QUEUE_FLUSH,null,"")
             }
             tellJoke.isEnabled = true
             giveAnswer.isEnabled = false
         }
+    }
 
-        val childJob = launch {
-            text_under_dancer.text = getDancersName()
+    private fun getAnswerBlocking(): String {
+        Thread.sleep(3000)
+        return Jokes().getAnswer(answerIndex)
 
-            println("From launch: I am running in: ${Thread.currentThread().name}")
-        }
-        childJob.cancel()
+    }
 
+    private fun getJokeBlocking(): String {
+        Thread.sleep(3000)
+        answerIndex = Random.nextInt(0, 6)
+        return Jokes().getJoke(answerIndex)
     }
 
     private fun setupTTS() {
         textToSpeech = TextToSpeech(requireContext(), TextToSpeech.OnInitListener {
             if (it == TextToSpeech.SUCCESS) {
                 val result = textToSpeech.setLanguage(Locale.UK)
+                val a = HashSet<String>()
+                a.add("male")
+                textToSpeech.voice = Voice("en-us-x-sfg#male_2-local", Locale("en","US"),400,200,true,a)
 
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e("TTS", "The Language specified is not supported!")
@@ -85,19 +93,6 @@ class DancerFragment : Fragment(), CoroutineScope {
     private fun setAnimation() {
         dancer_animation.playAnimation()
         println("play animation in ${Thread.currentThread().name}")
-    }
-
-    private suspend fun getDancersName(): String {
-        return withContext(Dispatchers.IO) {
-            delay(5000)
-            println("thread I am running in: ${Thread.currentThread().name}")
-            giveName()
-        }
-
-    }
-
-    private fun giveName(): String {
-        return "Jacker"
     }
 
     override fun onDestroy() {
