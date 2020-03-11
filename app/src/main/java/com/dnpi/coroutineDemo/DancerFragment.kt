@@ -41,14 +41,19 @@ class DancerFragment : Fragment(), CoroutineScope {
         setupTTS()
         giveAnswerButton.isEnabled = false
         tellJokeButton.setOnClickListener {
-            tellJoke()
+            launch {
+                tellJoke()
+            }
         }
         giveAnswerButton.setOnClickListener {
-            giveAnswer()
+            launch {
+                giveAnswer()
+            }
+
         }
     }
 
-    private fun giveAnswer() {
+    private suspend fun giveAnswer() {
         if (answerIndex >= 0) {
             val answer = getAnswerBlocking()
             text_under_dancer.text = answer
@@ -58,7 +63,7 @@ class DancerFragment : Fragment(), CoroutineScope {
         giveAnswerButton.isEnabled = false
     }
 
-    private fun tellJoke() {
+    private suspend fun tellJoke() {
         val joke = getJokeBlocking()
         text_under_dancer.text = joke
         textToSpeech.speak(joke, TextToSpeech.QUEUE_FLUSH, null, "")
@@ -66,16 +71,15 @@ class DancerFragment : Fragment(), CoroutineScope {
         giveAnswerButton.isEnabled = true
     }
 
-    private fun getAnswerBlocking(): String {
-        Thread.sleep(3000)
-        return Jokes().getAnswer(answerIndex)
-
+    private suspend fun getAnswerBlocking(): String = withContext(Dispatchers.IO) {
+        delay(3000)
+        Jokes().getAnswer(answerIndex)
     }
 
-    private fun getJokeBlocking(): String {
-        Thread.sleep(3000)
+    private suspend fun getJokeBlocking(): String = withContext(Dispatchers.IO) {
+        delay(3000)
         answerIndex = Random.nextInt(0, 6)
-        return Jokes().getJoke(answerIndex)
+        Jokes().getJoke(answerIndex)
     }
 
     private fun setupTTS() {
@@ -84,7 +88,8 @@ class DancerFragment : Fragment(), CoroutineScope {
                 val result = textToSpeech.setLanguage(Locale.UK)
                 val a = HashSet<String>()
                 a.add("male")
-                textToSpeech.voice = Voice("en-us-x-sfg#male_2-local", Locale("en","US"),400,200,true,a)
+                textToSpeech.voice =
+                    Voice("en-us-x-sfg#male_2-local", Locale("en", "US"), 400, 200, true, a)
 
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e("TTS", "The Language specified is not supported!")
