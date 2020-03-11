@@ -35,7 +35,7 @@ class DancerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         setAnimation()
         setupTTS()
-        giveAnswerButton.isEnabled = false
+
         tellJokeButton.setOnClickListener {
             tellJoke()
         }
@@ -43,35 +43,10 @@ class DancerFragment : Fragment() {
             giveAnswer()
         }
     }
-
-    private fun giveAnswer() {
-        if (answerIndex >= 0) {
-            val answer = getAnswerBlocking()
-            text_under_dancer.text = answer
-            textToSpeech.speak(answer, TextToSpeech.QUEUE_FLUSH, null, "")
-        }
-        tellJokeButton.isEnabled = true
+    private fun setAnimation() {
         giveAnswerButton.isEnabled = false
-    }
-
-    private fun tellJoke() {
-        val joke = getJokeBlocking()
-        text_under_dancer.text = joke
-        textToSpeech.speak(joke, TextToSpeech.QUEUE_FLUSH, null, "")
-        tellJokeButton.isEnabled = false
-        giveAnswerButton.isEnabled = true
-    }
-
-    private fun getAnswerBlocking(): String {
-        Thread.sleep(3000)
-        return Jokes().getAnswer(answerIndex)
-
-    }
-
-    private fun getJokeBlocking(): String {
-        Thread.sleep(3000)
-        answerIndex = Random.nextInt(0, 6)
-        return Jokes().getJoke(answerIndex)
+        dancer_animation.playAnimation()
+        println("play animation in ${Thread.currentThread().name}")
     }
 
     private fun setupTTS() {
@@ -94,9 +69,34 @@ class DancerFragment : Fragment() {
         })
     }
 
-    private fun setAnimation() {
-        dancer_animation.playAnimation()
-        println("play animation in ${Thread.currentThread().name}")
+    private fun tellJoke() {
+        val joke = getJokeBlocking()
+        text_under_dancer.text = joke
+        textToSpeech.speak(joke, TextToSpeech.QUEUE_FLUSH, null, "")
+        tellJokeButton.isEnabled = false
+        giveAnswerButton.isEnabled = true
+    }
+
+    private fun getJokeBlocking(): String {
+        Thread.sleep(3000)
+        answerIndex = Random.nextInt(0, 6)
+        return Jokes().getJoke(answerIndex)
+    }
+
+    private fun giveAnswer() {
+        if (answerIndex >= 0) {
+            val answer = getAnswerBlocking()
+            text_under_dancer.text = answer
+            textToSpeech.speak(answer, TextToSpeech.QUEUE_FLUSH, null, "")
+        }
+        tellJokeButton.isEnabled = true
+        giveAnswerButton.isEnabled = false
+    }
+
+    private fun getAnswerBlocking(): String {
+        Thread.sleep(3000)
+        return Jokes().getAnswer(answerIndex)
+
     }
 
     override fun onDestroy() {
