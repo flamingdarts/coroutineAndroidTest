@@ -19,9 +19,9 @@ import kotlin.random.Random
 
 class DancerFragment : Fragment(), CoroutineScope {
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+        get() = Dispatchers.Main + supervisorJob
 
-    private var job = Job()
+    private var supervisorJob = Job()
     private var answerIndex: Int = -1
 
     private lateinit var textToSpeech: TextToSpeech
@@ -108,6 +108,7 @@ class DancerFragment : Fragment(), CoroutineScope {
     override fun onDestroy() {
         textToSpeech.stop()
         textToSpeech.shutdown()
+        supervisorJob.cancel()
         super.onDestroy()
     }
 }
