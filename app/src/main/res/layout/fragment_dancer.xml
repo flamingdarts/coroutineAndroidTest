@@ -30,17 +30,17 @@
         app:layout_constraintTop_toBottomOf="@id/dancer_animation" />
 
     <Button
-        android:id="@+id/tellJoke"
+        android:id="@+id/tellJokeButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:text="Tell Joke"
         android:layout_margin="16dp"
-        app:layout_constraintBottom_toTopOf="@id/giveAnswer"
+        app:layout_constraintBottom_toTopOf="@id/giveAnswerButton"
         />
     <Button
-        android:id="@+id/giveAnswer"
+        android:id="@+id/giveAnswerButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"

@@ -39,23 +39,31 @@ class DancerFragment : Fragment(), CoroutineScope {
         super.onViewCreated(view, savedInstanceState)
         setAnimation()
         setupTTS()
-        giveAnswer.isEnabled = false
-        tellJoke.setOnClickListener {
-            val joke = getJokeBlocking()
-            text_under_dancer.text = joke
-            textToSpeech.speak(joke,TextToSpeech.QUEUE_FLUSH,null,"")
-            tellJoke.isEnabled = false
-            giveAnswer.isEnabled = true
+        giveAnswerButton.isEnabled = false
+        tellJokeButton.setOnClickListener {
+            tellJoke()
         }
-        giveAnswer.setOnClickListener {
-            if (answerIndex >= 0) {
-                val answer = getAnswerBlocking()
-                text_under_dancer.text = answer
-                textToSpeech.speak(answer,TextToSpeech.QUEUE_FLUSH,null,"")
-            }
-            tellJoke.isEnabled = true
-            giveAnswer.isEnabled = false
+        giveAnswerButton.setOnClickListener {
+            giveAnswer()
         }
+    }
+
+    private fun giveAnswer() {
+        if (answerIndex >= 0) {
+            val answer = getAnswerBlocking()
+            text_under_dancer.text = answer
+            textToSpeech.speak(answer, TextToSpeech.QUEUE_FLUSH, null, "")
+        }
+        tellJokeButton.isEnabled = true
+        giveAnswerButton.isEnabled = false
+    }
+
+    private fun tellJoke() {
+        val joke = getJokeBlocking()
+        text_under_dancer.text = joke
+        textToSpeech.speak(joke, TextToSpeech.QUEUE_FLUSH, null, "")
+        tellJokeButton.isEnabled = false
+        giveAnswerButton.isEnabled = true
     }
 
     private fun getAnswerBlocking(): String {
@@ -81,11 +89,11 @@ class DancerFragment : Fragment(), CoroutineScope {
                 if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
                     Log.e("TTS", "The Language specified is not supported!")
                 } else {
-                    tellJoke.isEnabled = true
+                    tellJokeButton.isEnabled = true
                 }
             } else {
                 Log.e("TTS", "Initilization Failed!")
-                tellJoke.isEnabled = false
+                tellJokeButton.isEnabled = false
             }
         })
     }
