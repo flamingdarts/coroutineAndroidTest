@@ -17,11 +17,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlin.random.Random
 
 
-class DancerFragment : Fragment(), CoroutineScope {
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
-
-    private var job = Job()
+class DancerFragment : Fragment() {
     private var answerIndex: Int = -1
 
     private lateinit var textToSpeech: TextToSpeech
