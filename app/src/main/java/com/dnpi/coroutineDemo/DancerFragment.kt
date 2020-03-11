@@ -30,16 +30,12 @@ class DancerFragment : Fragment(), CoroutineScope {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_dancer, container, false)
-    }
+    ): View? = inflater.inflate(R.layout.fragment_dancer, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setAnimation()
         setupTTS()
-        giveAnswerButton.isEnabled = false
         tellJokeButton.setOnClickListener {
             launch {
                 tellJoke()
@@ -53,33 +49,10 @@ class DancerFragment : Fragment(), CoroutineScope {
         }
     }
 
-    private suspend fun giveAnswer() {
-        if (answerIndex >= 0) {
-            val answer = getAnswerBlocking()
-            text_under_dancer.text = answer
-            textToSpeech.speak(answer, TextToSpeech.QUEUE_FLUSH, null, "")
-        }
-        tellJokeButton.isEnabled = true
+    private fun setAnimation() {
         giveAnswerButton.isEnabled = false
-    }
-
-    private suspend fun tellJoke() {
-        val joke = getJokeBlocking()
-        text_under_dancer.text = joke
-        textToSpeech.speak(joke, TextToSpeech.QUEUE_FLUSH, null, "")
-        tellJokeButton.isEnabled = false
-        giveAnswerButton.isEnabled = true
-    }
-
-    private suspend fun getAnswerBlocking(): String = withContext(Dispatchers.IO) {
-        delay(3000)
-        Jokes().getAnswer(answerIndex)
-    }
-
-    private suspend fun getJokeBlocking(): String = withContext(Dispatchers.IO) {
-        delay(3000)
-        answerIndex = Random.nextInt(0, 6)
-        Jokes().getJoke(answerIndex)
+        dancer_animation.playAnimation()
+        println("play animation in ${Thread.currentThread().name}")
     }
 
     private fun setupTTS() {
@@ -103,9 +76,33 @@ class DancerFragment : Fragment(), CoroutineScope {
         })
     }
 
-    private fun setAnimation() {
-        dancer_animation.playAnimation()
-        println("play animation in ${Thread.currentThread().name}")
+    private suspend fun tellJoke() {
+        val joke = getJokeBlocking()
+        text_under_dancer.text = joke
+        textToSpeech.speak(joke, TextToSpeech.QUEUE_FLUSH, null, "")
+        tellJokeButton.isEnabled = false
+        giveAnswerButton.isEnabled = true
+    }
+
+    private suspend fun getJokeBlocking(): String = withContext(Dispatchers.IO) {
+        delay(3000)
+        answerIndex = Random.nextInt(0, 6)
+        Jokes().getJoke(answerIndex)
+    }
+
+    private suspend fun giveAnswer() {
+        if (answerIndex >= 0) {
+            val answer = getAnswerBlocking()
+            text_under_dancer.text = answer
+            textToSpeech.speak(answer, TextToSpeech.QUEUE_FLUSH, null, "")
+        }
+        tellJokeButton.isEnabled = true
+        giveAnswerButton.isEnabled = false
+    }
+
+    private suspend fun getAnswerBlocking(): String = withContext(Dispatchers.IO) {
+        delay(3000)
+        Jokes().getAnswer(answerIndex)
     }
 
     override fun onDestroy() {
